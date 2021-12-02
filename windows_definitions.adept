@@ -1,0 +1,137 @@
+
+pragma windows_only
+
+// https://docs.microsoft.com/en-us/windows/win32/winprog/windows-data-types
+alias LRESULT = ptr
+alias LPSTR = *ubyte
+alias LPCSTR = *ubyte
+alias ULONG_PTR = *ulong
+alias WORD = ushort
+alias HWND = HANDLE
+alias HANDLE = ptr
+alias UINT = uint
+alias UINT_PTR = *uint
+alias WPARAM = *uint
+alias LPARAM = LONG_PTR
+alias LONG_PTR = long
+alias BOOL = int
+alias HINSTANCE = HANDLE
+alias HICON = HANDLE
+alias HCURSOR = HANDLE
+alias HMENU = HANDLE
+alias HBRUSH = HANDLE
+alias DWORD = uint
+alias ATOM = WORD
+alias LPCTSTR = *ubyte
+alias LPVOID = ptr
+
+define NULL = null
+define WM_CLOSE = 0x0010 // https://docs.microsoft.com/en-us/windows/win32/winmsg/wm-close
+define WM_DESTROY = 0x0002 // https://docs.microsoft.com/en-us/windows/win32/winmsg/wm-destroy
+
+define IDI_APPLICATION = MAKEINTRESOURCEA(32512) // https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadicona
+define IDC_ARROW = MAKEINTRESOURCEA(32512) // https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadcursora
+
+// https://stackoverflow.com/questions/3610565/why-does-makeintresource-work
+func MAKEINTRESOURCEA(i int) LPSTR = cast LPSTR (cast ULONG_PTR (cast WORD i))
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getsyscolor
+define COLOR_WINDOW = 5
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messagebox
+define MB_ICONEXCLAMATION = 0x00000030
+define MB_OK = 0x00000000
+
+// https://docs.microsoft.com/en-us/windows/win32/winmsg/extended-window-styles
+define WS_EX_CLIENTEDGE = 0x00000200
+
+// https://docs.microsoft.com/en-us/windows/win32/winmsg/window-styles
+define WS_OVERLAPPEDWINDOW = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX
+define WS_OVERLAPPED = 0x00000000
+define WS_CAPTION = 0x00C00000
+define WS_SYSMENU = 0x00080000
+define WS_THICKFRAME = 0x00040000
+define WS_MINIMIZEBOX = 0x00020000
+define WS_MAXIMIZEBOX = 0x00010000
+
+// https://stackoverflow.com/questions/47846642/include-doesnt-work-in-a-resource-file-visual-studio
+define CW_USEDEFAULT = 0x80000000
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-destroywindow
+foreign DestroyWindow(HWND) BOOL
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postquitmessage
+foreign PostQuitMessage(int) void
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-defwindowproca
+foreign DefWindowProcA(HWND, UINT, WPARAM, LPARAM) LRESULT
+func alias DefWindowProc => DefWindowProcA
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-wndclassexa
+struct WNDCLASSEXA (
+    cbSize UINT,
+    style UINT,
+    lpfnWndProc WNDPROC,
+    cbClsExtra int,
+    cbWndExtra int,
+    hInstance HINSTANCE,
+    hIcon HICON,
+    hCursor HCURSOR,
+    hbrBackground HBRUSH,
+    lpszMenuName LPCSTR,
+    lpszClassName LPCSTR,
+    hIconSm HICON,
+)
+alias WNDCLASSEX = WNDCLASSEXA
+
+// https://stackoverflow.com/questions/5082116/function-as-a-type
+alias WNDPROC = stdcall func(HWND, UINT, WPARAM, LPARAM) LRESULT
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/ns-winuser-msg
+struct MSG (
+    hwnd DWORD,
+    message DWORD,
+    wParam DWORD,
+    lParam DWORD,
+    time DWORD,
+    pt DWORD,
+    lPrivate DWORD,
+)
+alias LPMSG = *MSG
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadicona
+foreign LoadIconA(HINSTANCE, LPCSTR) HICON
+func alias LoadIcon => LoadIconA
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-loadcursora
+foreign LoadCursorA(HINSTANCE, LPCSTR) HCURSOR
+func alias LoadCursor => LoadCursorA
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerclassexa
+foreign RegisterClassExA(*WNDCLASSEXA) ATOM
+func alias RegisterClassEx => RegisterClassExA
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messagebox
+foreign MessageBoxA(HWND, LPCTSTR, LPCTSTR, UINT) int
+func alias MessageBox => MessageBoxA
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-createwindowexa
+foreign CreateWindowExA(DWORD, LPCSTR, LPCSTR, DWORD, int, int, int, int, HWND, HMENU, HINSTANCE, LPVOID) HWND
+func alias CreateWindowEx => CreateWindowExA
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-showwindow
+foreign ShowWindow(HWND, int) BOOL
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-updatewindow
+foreign UpdateWindow(HWND) BOOL
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmessage
+foreign GetMessageA(LPMSG, HWND, UINT, UINT) BOOL
+func alias GetMessage => GetMessageA
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-translatemessage
+foreign TranslateMessage(*MSG) BOOL
+
+// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-dispatchmessage
+foreign DispatchMessageA(*MSG) LRESULT
+func alias DispatchMessage => DispatchMessageA
