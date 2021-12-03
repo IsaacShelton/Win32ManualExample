@@ -18,12 +18,12 @@ stdcall func WndProc(hwnd HWND, msg UINT, wParam WPARAM, lParam LPARAM) LRESULT 
     return DefWindowProc(hwnd, msg, wParam, lParam)
 }
 
+g_szClassName LPCSTR = 'myWindowClass'
+
 external stdcall func WinMain(hInstance, _hPrevInstance HINSTANCE, _lpCmdLine LPSTR, nCmdShow int) int {
     wc WNDCLASSEX
     hwnd HWND
     Msg MSG
-
-    szClassName LPCSTR = 'myWindowClass'
 
     // Step 1: Registering the Window Class
     wc.cbSize        = sizeof WNDCLASSEX
@@ -36,7 +36,7 @@ external stdcall func WinMain(hInstance, _hPrevInstance HINSTANCE, _lpCmdLine LP
     wc.hCursor       = LoadCursor(NULL, IDC_ARROW)
     wc.hbrBackground = cast HBRUSH (COLOR_WINDOW + 1)
     wc.lpszMenuName  = NULL
-    wc.lpszClassName = szClassName
+    wc.lpszClassName = g_szClassName
     wc.hIconSm       = LoadIcon(NULL, IDI_APPLICATION)
 
     if !RegisterClassEx(&wc) {
@@ -47,7 +47,7 @@ external stdcall func WinMain(hInstance, _hPrevInstance HINSTANCE, _lpCmdLine LP
     // Step 2: Creating the Window
     hwnd = CreateWindowEx(
         WS_EX_CLIENTEDGE,
-        szClassName,
+        g_szClassName,
         'The title of my window',
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT, 640, 480,
